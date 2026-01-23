@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String         @id @default(dbgenerated("gen_random_uuid()"))
+  name         String?
+  email        String         @unique
+  hashedPass   String
+  image        String?
+  trial        Boolean        @default(false)
+  studio       Media?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  mediaId      String?
+  workspace    WorkSpace[]
+  videos       Video[]
+  subscription Subscription[]
+  members      Member[]
+  notification Notification[]
+  sender       Invite[]       @relation("sender")
+  receiver     Invite[]       @relation("receiver")
+}
+
+enum PRESET {
+  HD
+  SD
+}
+
+enum Type {
+  PERSONAL
+  PUBLIC
+}
+
+model Media {
+  id     String  @id @default(dbgenerated("gen_random_uuid()"))
+  screen String?
+  mic    String?
+  camera String?
+  preset PRESET  @default(SD)
+
+  user   User?  @relation(fields: [userId], references: [id])
+  userId String? @unique
+}
+
+model WorkSpace {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  name      String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  type      Type?
+  createdAt DateTime @default(now())
+  folders   Folder[]
+  videos    Video[]
+  members   Member[]
+  invite    Invite[]
+}
+
+enum SUBSCRIPTION_PLAN {
+  FREE
+  PRO
+}
+
+model Subscription {
+  id         String            @id @default(dbgenerated("gen_random_uuid()"))
+  user       User?             @relation(fields: [userId], references: [id])
+  userId     String?           @unique
+  createdAt  DateTime          @default(now())
+  plan       SUBSCRIPTION_PLAN @default(FREE)
+  updatedAt  DateTime          @updatedAt
+  customerId String?           @unique
+}
+
+model Folder {
+  id          String     @id @default(dbgenerated("gen_random_uuid()"))
+  name        String     @default("Untitled Folder")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  workspace   WorkSpace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+  videos      Video[]
+}
+
+model Video {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  title       String?  @default("Untitled Video")
+  description String?  @default("No Description")
+  source      String   @unique
+  createdAt   DateTime @default(now())
+  folder      Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId    String?
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+
+  processing Boolean @default(true)
+
+  workspace   WorkSpace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String?
+
+  views   Int     @default(0)
+  summary String?
+}
+
+model Member {
+  id     String  @id @default(dbgenerated("gen_random_uuid()"))
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt   DateTime   @default(now())
+  member      Boolean    @default(true)
+  workspace   WorkSpace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+}
+
+model Notification {
+  id      String  @id @default(dbgenerated("gen_random_uuid()"))
+  user    User?   @relation(fields: [userId], references: [id])
+  userId  String?
+  content String
+}
+
+model Invite {
+  id String @id @default(dbgenerated("gen_random_uuid()"))
+
+  sender   User?   @relation("sender", fields: [senderId], references: [id])
+  senderId String?
+
+  receiver   User?   @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String?
+
+  workspace   WorkSpace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+
+  accepted Boolean @default(false)
+}

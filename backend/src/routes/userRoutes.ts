@@ -1,0 +1,13 @@
+import { Router } from "express";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { getMe, updateMe, getSettings, updateSettings } from "../controllers/userControllers";
+
+export const userRoutes = Router();
+
+// All user routes require authentication
+userRoutes.use(authMiddleware);
+
+userRoutes.get("/me", getMe);
+userRoutes.patch("/me", updateMe);
+userRoutes.get("/me/settings", getSettings);
+userRoutes.patch("/me/settings", updateSettings);

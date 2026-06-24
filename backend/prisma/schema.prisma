@@ -14,23 +14,34 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(dbgenerated("gen_random_uuid()"))
-  name         String?
-  email        String         @unique
-  hashedPass   String
-  image        String?
-  trial        Boolean        @default(false)
-  studio       Media?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  mediaId      String?
-  workspace    WorkSpace[]
-  videos       Video[]
-  subscription Subscription[]
-  members      Member[]
-  notification Notification[]
-  sender       Invite[]       @relation("sender")
-  receiver     Invite[]       @relation("receiver")
+  id             String         @id @default(dbgenerated("gen_random_uuid()"))
+  name           String?
+  email          String         @unique
+  hashedPass     String?
+  googleId       String?        @unique
+  image          String?
+  trial          Boolean        @default(false)
+  studio         Media?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  mediaId        String?
+  workspace      WorkSpace[]
+  videos         Video[]
+  subscription   Subscription[]
+  members        Member[]
+  notification   Notification[]
+  sender         Invite[]       @relation("sender")
+  receiver       Invite[]       @relation("receiver")
+  refreshTokens  RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 enum PRESET {

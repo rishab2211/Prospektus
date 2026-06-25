@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { authRoutes } from "./routes/authRoutes";
 import { userRoutes } from "./routes/userRoutes";
+import { workspaceRoutes } from "./routes/workspaceRoutes";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,6 +36,9 @@ app.use("/api/auth", authRoutes);
 
 // User routes (protected) — requires valid JWT access token
 app.use("/api/users", userRoutes);
+
+// Workspace routes (protected) — workspace folders, videos, etc.
+app.use("/api/workspaces", workspaceRoutes);
 
 // Start Server
 

@@ -137,4 +137,47 @@ export const updateSettings = async (req: Request, res: Response) => {
         console.error("Update settings error:", error);
         return res.status(500).json({ error: "Internal server error" });
     }
+};// VERIFY WORKSPACE ACCESS
+// GET /api/users/workspace/:workspaceId/access
+// Checks if the authenticated user owns or is a member of the workspace
+export const verifyAccessToWorkspace = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user?.userId;
+        const workspaceId = req.params.workspaceId as string;
+
+        if (!userId) {
+            return res.status(401).json({ error: "Not authenticated" });
+        }
+
+        if (!workspaceId) {
+            return res.status(400).json({ error: "Workspace ID is required" });
+        }
+
+        // Check if user is either the workspace owner OR an active member
+        const hasAccess = await client.workSpace.findFirst({
+            where: {
+                id: workspaceId,
+                OR: [
+                    { userId },
+                    {
+                        members: {
+                            some: {
+                                userId,
+                                member: true,
+                            },
+                        },
+                    },
+                ],
+            },
+        });
+
+        if (!hasAccess) {
+            return res.status(403).json({ error: "You do not have access to this workspace" });
+        }
+
+        return res.status(200).json({ status: 200, message: "Authorized" });
+    } catch (error) {
+        console.error("Verify workspace access error:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
 };

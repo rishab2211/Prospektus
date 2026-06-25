@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
-import { getMe, updateMe, getSettings, updateSettings } from "../controllers/userControllers";
+import { getMe, updateMe, getSettings, updateSettings, verifyAccessToWorkspace } from "../controllers/userControllers";
 
 export const userRoutes = Router();
 
@@ -11,3 +11,5 @@ userRoutes.get("/me", getMe);
 userRoutes.patch("/me", updateMe);
 userRoutes.get("/me/settings", getSettings);
 userRoutes.patch("/me/settings", updateSettings);
+userRoutes.get("/workspace/:workspaceId/access", verifyAccessToWorkspace);
+

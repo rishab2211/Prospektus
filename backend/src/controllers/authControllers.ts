@@ -215,7 +215,14 @@ export const refresh = async (req: Request, res: Response) => {
 
     // ── Token Rotation ──
     // Delete old refresh token (single-use: prevents replay attacks)
-    await client.refreshToken.delete({ where: { id: storedToken.id } });
+    // Use deleteMany to avoid P2025 error if a concurrent request already deleted it
+    const deleted = await client.refreshToken.deleteMany({ where: { id: storedToken.id } });
+
+    if (deleted.count === 0) {
+      // Another request already consumed this token — possible replay attack or race condition
+      res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
+      return res.status(401).json({ error: "Refresh token already used" });
+    }
 
     // Issue new token pair
     const newAccessToken = generateAccessToken(decoded.userId, decoded.email);

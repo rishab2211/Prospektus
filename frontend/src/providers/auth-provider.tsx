@@ -1,32 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface User {
-    id: string;
-    name: string | null;
-    email: string;
-    image: string | null;
-    workspace?: any[];
-    subscription?: any[];
-}
-
-interface AuthContextType {
-    user: User | null;
-    accessToken: string | null;
-    isLoading: boolean;
-    isAuthenticated: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    signup: (name: string, email: string, password: string) => Promise<void>;
-    logout: () => Promise<void>;
-    getAccessToken: () => string | null;
-}
+import React, { createContext, useState, useEffect, useCallback, useRef } from "react";
+import type { User, AuthContextType } from "@/types/auth";
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -221,14 +200,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             {children}
         </AuthContext.Provider>
     );
-}
-
-// ─── Hook ────────────────────────────────────────────────────────────────────
-
-export function useAuth() {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
 }

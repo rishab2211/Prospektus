@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prospektus — Personalized Video Outreach",
-  description: "Record, share, and track personalized videos to revolutionize your client acquisition.",
+  title: "Prospektus",
+  description: "Record, share, and track personalized videos to revolutionize client acquisition.",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <ThemeProvider
         attribute={"class"}
-        defaultTheme="system"
+        defaultTheme="light"
         enableSystem
         disableTransitionOnChange
         >
